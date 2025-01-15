@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
-    <link rel="icon" href="logo.webp" type="image/x-icon" />
+    <link
+        rel="icon"
+        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
+        type="image/x-icon"
+    />
     <style>
         * {
             margin: 0;
@@ -67,16 +71,17 @@
             color: #333;
         }
 
+        #image-display img, #image-display video {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
+        }
+
         #score {
             font-size: 18px;
             margin-top: 20px;
             font-weight: bold;
-        }
-
-        #emotion {
-            font-size: 24px;
-            font-weight: bold;
-            margin-top: 20px;
         }
 
         @media (max-width: 600px) {
@@ -118,9 +123,10 @@
     <div id="container">
         <h1>Duygusal Yüz İfadeleri</h1>
         <button id="connect">Bluetooth'a Bağlan</button>
+        <button id="randomEmotion">Rastgele İfade Göster</button>
         <p id="status">Durum: Bağlanmadı</p>
-        <p id="emotion">Duygu: Seçiliyor...</p> <!-- Rastgele duygu burada görünecek -->
         <p id="score">Skor: 0</p>
+        <div id="image-display"></div>
     </div>
 
     <!-- Ses dosyaları -->
@@ -130,23 +136,15 @@
     <script>
         let port;
         let writer;
+        let selectedEmotion = null;
         let score = 0;
-        let currentEmotion = ''; // Geçerli duygu
 
-        // Duygular listesi
-        const emotions = ['mutlu', 'üzgün', 'kızgın', 'şaşkın', 'hayal kırıklığı', 'neşeli'];
-        
-        // Rastgele duygu seçme
-        function getRandomEmotion() {
-            const randomIndex = Math.floor(Math.random() * emotions.length);
-            return emotions[randomIndex];
-        }
-
-        // Ekranda rastgele duyguyu göster
-        function displayEmotion() {
-            currentEmotion = getRandomEmotion();
-            document.getElementById('emotion').textContent = `Duygu: ${currentEmotion}`;
-        }
+        const emotions = [
+            { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
+            { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
+            { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
+            { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
+        ];
 
         // Bluetooth bağlantısı
         document.getElementById('connect').addEventListener('click', async () => {
@@ -159,16 +157,62 @@
                 writer = textEncoder.writable.getWriter();
 
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-                
-                // Ekranda rastgele duygu göster
-                displayEmotion();
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
 
-        // Bluetooth üzerinden gelen veriyi işleme
+        // Rastgele ifade göster
+        document.getElementById('randomEmotion').addEventListener('click', () => {
+            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            selectedEmotion = randomEmotion.command;
+
+            showImage(randomEmotion);
+            setTimeout(() => showGif(randomEmotion), 3000);
+
+            sendToBluetooth(randomEmotion.command);
+        });
+
+        // Resim göster
+        function showImage(emotion) {
+            const imageDisplay = document.getElementById('image-display');
+            imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
+        }
+
+        // GIF göster
+        function showGif(emotion) {
+            const imageDisplay = document.getElementById('image-display');
+            imageDisplay.innerHTML += ` 
+                <video autoplay loop>
+                    <source src="${emotion.gif}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+        }
+
+        // Bluetooth üzerinden veri gönder
+        async function sendToBluetooth(command) {
+            if (writer) {
+                await writer.write(command + '\n');
+            }
+        }
+
+        // Geri dönüşleri işleme
+        function handleButtonPress(value) {
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+
+            if (value === selectedEmotion) {
+                score++;
+                correctSound.play();
+                document.getElementById('score').textContent = `Skor: ${score}`;
+            } else {
+                wrongSound.play();
+            }
+        }
+
+        // Bluetooth üzerinden gelen veriyi işle
         const reader = port.readable.getReader();
         reader.read().then(function processText({ done, value }) {
             if (done) {
@@ -179,25 +223,10 @@
 
             const data = new TextDecoder().decode(value);
             console.log('Gelen veri:', data);
-            handleResponse(data.trim());
+            handleButtonPress(data.trim());
 
             reader.read().then(processText);
         });
-
-        // Buton ve ses işleme
-        function handleResponse(data) {
-            const correctSound = document.getElementById('correctSound');
-            const wrongSound = document.getElementById('wrongSound');
-
-            if (data === currentEmotion) {
-                score++;
-                correctSound.play();
-                document.getElementById('score').textContent = `Skor: ${score}`;
-                displayEmotion(); // Doğru cevap verildikten sonra yeni bir duygu seç
-            } else {
-                wrongSound.play();
-            }
-        }
     </script>
 </body>
 </html>
