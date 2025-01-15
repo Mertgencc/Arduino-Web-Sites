@@ -117,29 +117,6 @@
         #container {
             animation: fadeIn 1.2s ease-out;
         }
-
-        /* Mobil uyumlu düzenlemeler */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 36px;
-            }
-
-            button {
-                font-size: 18px;
-                padding: 12px 25px;
-            }
-
-            .command {
-                font-size: 18px;
-                padding: 10px 20px;
-            }
-        }
-
-        /* Scroll için */
-        #container {
-            max-height: 100vh;
-            overflow-y: auto;
-        }
     </style>
 </head>
 <body>
@@ -195,12 +172,15 @@
                 const service = await server.getPrimaryService('device_information');
                 const characteristic = await service.getCharacteristic('device_name');
                 
-                // Bluetooth bağlandığında
+                // Bağlantı başarılı olduğunda writer'ı ayarla
+                writer = await characteristic.getWriter();
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
                 console.log('Bluetooth Bağlantısı Başarılı');
+                updateButtonsState(true); // Butonları aktif hale getir
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
+                updateButtonsState(false); // Butonları devre dışı bırak
             }
         });
 
@@ -208,7 +188,7 @@
             button.addEventListener('click', () => {
                 selectedCommand = button.getAttribute('data-command');
                 alert(`Seçili Komut: ${selectedCommand}`);
-
+                
                 // Komut ile ilgili görselleri göster
                 showImage(selectedCommand);
             });
@@ -234,6 +214,14 @@
                     Your browser does not support the video tag.
                 </video>
             `;
+        }
+
+        // Butonları aktif ya da pasif hale getirme fonksiyonu
+        function updateButtonsState(isConnected) {
+            const buttons = document.querySelectorAll('.command, #send');
+            buttons.forEach(button => {
+                button.disabled = !isConnected;
+            });
         }
     </script>
 </body>
