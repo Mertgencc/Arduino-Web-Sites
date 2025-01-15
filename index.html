@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
     <link
-    rel="icon"
-    href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
-    type="image/x-icon"
-  />    
+        rel="icon"
+        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
+        type="image/x-icon"
+    />
     <style>
         * {
             margin: 0;
@@ -25,7 +25,7 @@
             min-height: 100vh;
             padding: 20px;
             color: black;
-            overflow-x: hidden; /* Ensures no horizontal scroll */
+            overflow-x: hidden;
         }
 
         h1 {
@@ -60,25 +60,7 @@
         }
 
         button:hover {
-            background-color: #FF4500;
-            transform: scale(1.05);
-        }
-
-        .command {
-            font-size: 18px;
-            padding: 10px 20px;
-            margin: 10px;
-            background-color: #32CD32;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%;
-            max-width: 350px;
-        }
-
-        .command:hover {
-            background-color: #228B22;
+            background-color: green;
             transform: scale(1.05);
         }
 
@@ -96,13 +78,19 @@
             border-radius: 10px;
         }
 
+        #score {
+            font-size: 18px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
         /* Responsive styles */
         @media (max-width: 600px) {
             h1 {
                 font-size: 22px;
             }
 
-            button, .command {
+            button {
                 font-size: 14px;
                 padding: 10px;
                 max-width: 100%;
@@ -122,7 +110,7 @@
                 font-size: 20px;
             }
 
-            button, .command {
+            button {
                 font-size: 13px;
             }
 
@@ -137,64 +125,62 @@
     <div id="container">
         <h1>Duygusal Yüz İfadeleri</h1>
         <button id="connect">Bluetooth'a Bağlan</button>
-        <div id="commands">
-            <p>Bir komut seçin:</p>
-            <button class="command" data-command="mutlu">😊 Mutlu</button>
-            <button class="command" data-command="üzgün">😢 Üzgün</button>
-            <button class="command" data-command="sinirli">😡 Sinirli</button>
-            <button class="command" data-command="heyecanlı">😲 Heyecanlı</button>
-        </div>
-        <button id="send">Seçili Komutu Gönder</button>
+        <button id="randomEmotion">Rastgele İfade Göster</button>
         <p id="status">Durum: Bağlanmadı</p>
+        <p id="score">Skor: 0</p>
         <div id="image-display"></div>
     </div>
 
     <script>
         let port;
         let writer;
-        let selectedCommand = null;
+        let selectedEmotion = null;
+        let score = 0;  // Başlangıç skoru
 
-        // Komutlar için resimler ve GIF'ler
-        const images = {
-            mutlu: {
-                img: '/mutlu.jpeg', // Mutlu resim URL'si
-                gif: '/mutlu2.mp4'  // Mutlu GIF URL'si
+        const emotions = [
+            {
+                command: 'mutlu',
+                img: '/mutlu.jpeg',
+                gif: '/mutlu2.mp4'
             },
-            üzgün: {
-                img: '/uzgun.jpeg', // Üzgün resim URL'si
-                gif: '/uzgun.mp4'  // Üzgün GIF URL'si
+            {
+                command: 'üzgün',
+                img: '/uzgun.jpeg',
+                gif: '/uzgun.mp4'
             },
-            sinirli: {
-                img: '/ofke.jpeg', // Sinirli resim URL'si
-                gif: '/ofke.mp4'  // Sinirli GIF URL'si
+            {
+                command: 'sinirli',
+                img: '/ofke.jpeg',
+                gif: '/ofke.mp4'
             },
-            heyecanlı: {
-                img: '/heyecanlı.jpeg', // Şaşkın resim URL'si
-                gif: '/mutlu.mp4'  // Şaşkın GIF URL'si
+            {
+                command: 'heyecanlı',
+                img: '/heyecanlı.jpeg',
+                gif: '/mutlu.mp4'
             }
-        };
+        ];
 
         document.getElementById('connect').addEventListener('click', async () => {
             try {
-                // Mobil uyumlu Bluetooth bağlantısı (Web Bluetooth API)
                 if (!navigator.bluetooth) {
                     alert('Bluetooth özelliği bu cihazda desteklenmiyor.');
                     return;
                 }
 
-                // Bluetooth cihazını seçme
                 const device = await navigator.bluetooth.requestDevice({
                     filters: [{ services: ['device_information'] }]
                 });
 
-                // Bağlantı sağlama
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService('device_information');
                 const characteristic = await service.getCharacteristic('device_name');
-
-                // Writer'ı oluşturma
                 writer = characteristic.getWriter();
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+
+                characteristic.addEventListener('characteristicvaluechanged', (event) => {
+                    const value = event.target.value;
+                    handleButtonPress(value);
+                });
 
             } catch (error) {
                 console.error(error);
@@ -202,36 +188,39 @@
             }
         });
 
-        document.querySelectorAll('.command').forEach(button => {
-            button.addEventListener('click', () => {
-                selectedCommand = button.getAttribute('data-command');
-                alert(`Seçili Komut: ${selectedCommand}`);
+        document.getElementById('randomEmotion').addEventListener('click', () => {
+            // Rastgele bir duygu seç
+            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
 
-                // Komut ile ilgili görselleri göster
-                showImage(selectedCommand);
-            });
+            showImage(randomEmotion);  // Resmi göster
+            setTimeout(() => {
+                showGif(randomEmotion);  // Aynı duygunun GIF'ini göster
+            }, 3000);  // 3 saniye sonra GIF'i göster
         });
 
-        document.getElementById('send').addEventListener('click', async () => {
-            if (writer && selectedCommand) {
-                const data = new TextEncoder().encode(selectedCommand + '\n');
-                await writer.write(data);
-                alert(`Mesaj gönderildi: ${selectedCommand}`);
-            } else {
-                alert('HC-05 bağlı değil veya içerik seçilmedi.');
-            }
-        });
-
-        // Komutla ilgili görselleri gösteren fonksiyon
-        function showImage(command) {
+        function showImage(emotion) {
             const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML = ` 
-                <img src="${images[command].img}" alt="${command} image">
+            imageDisplay.innerHTML = `
+                <img src="${emotion.img}" alt="${emotion.command} image">
+            `;
+        }
+
+        function showGif(emotion) {
+            const imageDisplay = document.getElementById('image-display');
+            imageDisplay.innerHTML += `
                 <video autoplay loop>
-                    <source src="${images[command].gif}" type="video/mp4">
+                    <source src="${emotion.gif}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             `;
+        }
+
+        function handleButtonPress(value) {
+            const currentEmotion = emotions.find(emotion => emotion.command === selectedEmotion);
+            if (value === currentEmotion.command) {
+                score++;
+                document.getElementById('score').textContent = `Skor: ${score}`;
+            }
         }
     </script>
 </body>
