@@ -5,132 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
     <link
-    rel="icon"
-    href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
-    type="image/x-icon"
-  />    
+        rel="icon"
+        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
+        type="image/x-icon"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
             background: linear-gradient(135deg, #FF5C8D, #FFA64D);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            color: black;
-            overflow-x: hidden; /* Ensures no horizontal scroll */
+            overflow: hidden;
         }
 
         h1 {
-            font-size: 24px;
+            color: white;
+            font-size: 50px;
+            text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
             margin-bottom: 20px;
-            word-wrap: break-word;
         }
 
         #container {
             background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 25px;
+            border-radius: 25px;
+            padding: 40px;
             width: 100%;
-            max-width: 480px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            overflow: hidden;
+            max-width: 600px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #container:hover {
+            transform: scale(1.05);
         }
 
         button {
-            padding: 12px 25px;
-            margin: 15px 0;
+            padding: 18px 35px;
+            margin: 15px;
             background-color: #FF6347;
             color: white;
-            font-size: 16px;
+            font-size: 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%;
-            max-width: 350px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease-in-out;
         }
 
         button:hover {
             background-color: #FF4500;
-            transform: scale(1.05);
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
 
         .command {
-            font-size: 18px;
-            padding: 10px 20px;
-            margin: 10px;
+            font-size: 22px;
             background-color: #32CD32;
-            border-radius: 8px;
+            padding: 12px 25px;
+            border-radius: 10px;
+            margin: 5px;
             color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%;
-            max-width: 350px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
 
         .command:hover {
+            transform: scale(1.1);
             background-color: #228B22;
-            transform: scale(1.05);
         }
 
         #status {
-            margin-top: 20px;
+            margin-top: 25px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 24px;
             color: #333;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        #image-display {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
 
         #image-display img, #image-display video {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
+            width: 250px;
+            height: 250px;
+            border-radius: 12px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
-        /* Responsive styles */
-        @media (max-width: 600px) {
+        #image-display img:hover, #image-display video:hover {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+
+        /* Animasyonlar */
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        #container {
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        /* Mobil uyumlu düzenlemeler */
+        @media (max-width: 768px) {
             h1 {
-                font-size: 22px;
+                font-size: 36px;
             }
 
-            button, .command {
-                font-size: 14px;
-                padding: 10px;
-                max-width: 100%;
+            button {
+                font-size: 18px;
+                padding: 12px 25px;
             }
 
-            #status {
-                font-size: 16px;
-            }
-
-            #container {
-                padding: 20px;
+            .command {
+                font-size: 18px;
+                padding: 10px 20px;
             }
         }
 
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 20px;
-            }
-
-            button, .command {
-                font-size: 13px;
-            }
-
-            #status {
-                font-size: 14px;
-            }
+        /* Scroll için */
+        #container {
+            max-height: 100vh;
+            overflow-y: auto;
         }
-
     </style>
 </head>
 <body>
@@ -176,10 +185,19 @@
 
         document.getElementById('connect').addEventListener('click', async () => {
             try {
-                port = await navigator.serial.requestPort();
-                await port.open({ baudRate: 9600 });
-                writer = port.writable.getWriter();
+                // Web Bluetooth API ile cihazı seç
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ services: ['device_information'] }] // HC-05 gibi cihazlar için
+                });
+
+                // Cihaza bağlan
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService('device_information');
+                const characteristic = await service.getCharacteristic('device_name');
+                
+                // Bluetooth bağlandığında
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                console.log('Bluetooth Bağlantısı Başarılı');
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
