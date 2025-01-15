@@ -84,7 +84,6 @@
             font-weight: bold;
         }
 
-        /* Responsive styles */
         @media (max-width: 600px) {
             h1 {
                 font-size: 22px;
@@ -118,7 +117,6 @@
                 font-size: 14px;
             }
         }
-
     </style>
 </head>
 <body>
@@ -131,80 +129,58 @@
         <div id="image-display"></div>
     </div>
 
+    <!-- Ses dosyaları -->
+    <audio id="correctSound" src="dogruu.mp3"></audio>
+    <audio id="wrongSound" src="yanlıscevap.mp3"></audio>
+
     <script>
         let port;
         let writer;
         let selectedEmotion = null;
-        let score = 0;  // Başlangıç skoru
+        let score = 0;
 
         const emotions = [
-            {
-                command: 'mutlu',
-                img: '/mutlu.jpeg',
-                gif: '/mutlu2.mp4'
-            },
-            {
-                command: 'üzgün',
-                img: '/uzgun.jpeg',
-                gif: '/uzgun.mp4'
-            },
-            {
-                command: 'sinirli',
-                img: '/ofke.jpeg',
-                gif: '/ofke.mp4'
-            },
-            {
-                command: 'heyecanlı',
-                img: '/heyecanlı.jpeg',
-                gif: '/mutlu.mp4'
-            }
+            { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
+            { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
+            { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
+            { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
         ];
 
+        // Bluetooth bağlantısı
         document.getElementById('connect').addEventListener('click', async () => {
             try {
-                if (!navigator.bluetooth) {
-                    alert('Bluetooth özelliği bu cihazda desteklenmiyor.');
-                    return;
-                }
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
 
-                const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: ['device_information'] }]
-                });
+                const textEncoder = new TextEncoderStream();
+                const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+                writer = textEncoder.writable.getWriter();
 
-                const server = await device.gatt.connect();
-                const service = await server.getPrimaryService('device_information');
-                const characteristic = await service.getCharacteristic('device_name');
-                writer = characteristic.getWriter();
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-
-                characteristic.addEventListener('characteristicvaluechanged', (event) => {
-                    const value = event.target.value;
-                    handleButtonPress(value);
-                });
-
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
 
+        // Rastgele ifade göster
         document.getElementById('randomEmotion').addEventListener('click', () => {
-            // Rastgele bir duygu seç
             const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            selectedEmotion = randomEmotion.command;
 
-            showImage(randomEmotion);  // Resmi göster
-            setTimeout(() => {
-                showGif(randomEmotion);  // Aynı duygunun GIF'ini göster
-            }, 3000);  // 3 saniye sonra GIF'i göster
+            showImage(randomEmotion);
+            setTimeout(() => showGif(randomEmotion), 3000);
+
+            sendToBluetooth(randomEmotion.command);
         });
 
+        // Resim göster
         function showImage(emotion) {
             const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML = `
-                <img src="${emotion.img}" alt="${emotion.command} image">
-            `;
+            imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
         }
 
+        // GIF göster
         function showGif(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML += `
@@ -215,11 +191,24 @@
             `;
         }
 
+        // Bluetooth üzerinden veri gönder
+        async function sendToBluetooth(command) {
+            if (writer) {
+                await writer.write(command + '\n');
+            }
+        }
+
+        // Geri dönüşleri işleme
         function handleButtonPress(value) {
-            const currentEmotion = emotions.find(emotion => emotion.command === selectedEmotion);
-            if (value === currentEmotion.command) {
+            const correctSound = document.getElementById('dogruu.mp3');
+            const wrongSound = document.getElementById('yanlıscevap.mp3');
+
+            if (value === selectedEmotion) {
                 score++;
+                correctSound.play();
                 document.getElementById('score').textContent = `Skor: ${score}`;
+            } else {
+                wrongSound.play();
             }
         }
     </script>
