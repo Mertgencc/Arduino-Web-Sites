@@ -5,118 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
     <link
-        rel="icon"
-        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
-        type="image/x-icon"
-    />
+    rel="icon"
+    href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
+    type="image/x-icon"
+  />    
     <style>
-        body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #FF5C8D, #FFA64D);
+        * {
             margin: 0;
-            padding: 20px;
-            text-align: center;
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FF5C8D, #FFA64D);
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+            overflow-x: hidden; /* Ensures no horizontal scroll */
         }
 
         h1 {
-            color: white;
-            font-size: 50px;
-            text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
+            font-size: 24px;
             margin-bottom: 20px;
+            word-wrap: break-word;
         }
 
         #container {
             background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            padding: 40px;
+            border-radius: 15px;
+            padding: 25px;
             width: 100%;
-            max-width: 600px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        #container:hover {
-            transform: scale(1.05);
+            max-width: 480px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            overflow: hidden;
         }
 
         button {
-            padding: 18px 35px;
-            margin: 15px;
+            padding: 12px 25px;
+            margin: 15px 0;
             background-color: #FF6347;
             color: white;
-            font-size: 24px;
+            font-size: 16px;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease-in-out;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 350px;
         }
 
         button:hover {
             background-color: #FF4500;
-            transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05);
         }
 
         .command {
-            font-size: 22px;
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
             background-color: #32CD32;
-            padding: 12px 25px;
-            border-radius: 10px;
-            margin: 5px;
+            border-radius: 8px;
             color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 350px;
         }
 
         .command:hover {
-            transform: scale(1.1);
             background-color: #228B22;
+            transform: scale(1.05);
         }
 
         #status {
-            margin-top: 25px;
+            margin-top: 20px;
             font-weight: bold;
-            font-size: 24px;
+            font-size: 18px;
             color: #333;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        #image-display {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
         }
 
         #image-display img, #image-display video {
-            width: 250px;
-            height: 250px;
-            border-radius: 12px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
         }
 
-        #image-display img:hover, #image-display video:hover {
-            transform: scale(1.1);
-            opacity: 0.8;
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            button, .command {
+                font-size: 14px;
+                padding: 10px;
+                max-width: 100%;
+            }
+
+            #status {
+                font-size: 16px;
+            }
+
+            #container {
+                padding: 20px;
+            }
         }
 
-        /* Animasyonlar */
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
+        @media (max-width: 360px) {
+            h1 {
+                font-size: 20px;
+            }
+
+            button, .command {
+                font-size: 13px;
+            }
+
+            #status {
+                font-size: 14px;
+            }
         }
 
-        #container {
-            animation: fadeIn 1.2s ease-out;
-        }
     </style>
 </head>
 <body>
@@ -162,25 +176,29 @@
 
         document.getElementById('connect').addEventListener('click', async () => {
             try {
-                // Web Bluetooth API ile cihazı seç
+                // Mobil uyumlu Bluetooth bağlantısı (Web Bluetooth API)
+                if (!navigator.bluetooth) {
+                    alert('Bluetooth özelliği bu cihazda desteklenmiyor.');
+                    return;
+                }
+
+                // Bluetooth cihazını seçme
                 const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ services: ['device_information'] }] // HC-05 gibi cihazlar için
+                    filters: [{ services: ['device_information'] }]
                 });
 
-                // Cihaza bağlan
+                // Bağlantı sağlama
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService('device_information');
                 const characteristic = await service.getCharacteristic('device_name');
-                
-                // Bağlantı başarılı olduğunda writer'ı ayarla
-                writer = await characteristic.getWriter();
+
+                // Writer'ı oluşturma
+                writer = characteristic.getWriter();
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-                console.log('Bluetooth Bağlantısı Başarılı');
-                updateButtonsState(true); // Butonları aktif hale getir
+
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
-                updateButtonsState(false); // Butonları devre dışı bırak
             }
         });
 
@@ -188,7 +206,7 @@
             button.addEventListener('click', () => {
                 selectedCommand = button.getAttribute('data-command');
                 alert(`Seçili Komut: ${selectedCommand}`);
-                
+
                 // Komut ile ilgili görselleri göster
                 showImage(selectedCommand);
             });
@@ -214,14 +232,6 @@
                     Your browser does not support the video tag.
                 </video>
             `;
-        }
-
-        // Butonları aktif ya da pasif hale getirme fonksiyonu
-        function updateButtonsState(isConnected) {
-            const buttons = document.querySelectorAll('.command, #send');
-            buttons.forEach(button => {
-                button.disabled = !isConnected;
-            });
         }
     </script>
 </body>
