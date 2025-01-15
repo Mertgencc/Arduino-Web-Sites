@@ -73,6 +73,12 @@
             font-weight: bold;
         }
 
+        #emotion {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 22px;
@@ -113,6 +119,7 @@
         <h1>Duygusal Yüz İfadeleri</h1>
         <button id="connect">Bluetooth'a Bağlan</button>
         <p id="status">Durum: Bağlanmadı</p>
+        <p id="emotion">Duygu: Seçiliyor...</p> <!-- Rastgele duygu burada görünecek -->
         <p id="score">Skor: 0</p>
     </div>
 
@@ -124,6 +131,22 @@
         let port;
         let writer;
         let score = 0;
+        let currentEmotion = ''; // Geçerli duygu
+
+        // Duygular listesi
+        const emotions = ['mutlu', 'üzgün', 'kızgın', 'şaşkın', 'hayal kırıklığı', 'neşeli'];
+        
+        // Rastgele duygu seçme
+        function getRandomEmotion() {
+            const randomIndex = Math.floor(Math.random() * emotions.length);
+            return emotions[randomIndex];
+        }
+
+        // Ekranda rastgele duyguyu göster
+        function displayEmotion() {
+            currentEmotion = getRandomEmotion();
+            document.getElementById('emotion').textContent = `Duygu: ${currentEmotion}`;
+        }
 
         // Bluetooth bağlantısı
         document.getElementById('connect').addEventListener('click', async () => {
@@ -136,6 +159,9 @@
                 writer = textEncoder.writable.getWriter();
 
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                
+                // Ekranda rastgele duygu göster
+                displayEmotion();
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
@@ -163,11 +189,12 @@
             const correctSound = document.getElementById('correctSound');
             const wrongSound = document.getElementById('wrongSound');
 
-            if (data === 'mutlu') {
+            if (data === currentEmotion) {
                 score++;
                 correctSound.play();
                 document.getElementById('score').textContent = `Skor: ${score}`;
-            } else if (data === 'yanlış') {
+                displayEmotion(); // Doğru cevap verildikten sonra yeni bir duygu seç
+            } else {
                 wrongSound.play();
             }
         }
