@@ -6,116 +6,103 @@
     <title>Duygusal Yüz İfadeleri</title>
     <link
     rel="icon"
-    href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
+    href="/images/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
     type="image/x-icon"
   />    
     <style>
-        body {
-            font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(135deg, #FF5C8D, #FFA64D);
+        * {
             margin: 0;
-            padding: 20px;
-            text-align: center;
-            height: 100vh;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #FF5C8D, #FFA64D);
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
             overflow: hidden;
         }
 
         h1 {
-            color: white;
-            font-size: 50px;
-            text-shadow: 4px 4px 6px rgba(0, 0, 0, 0.5);
+            font-size: 24px;
             margin-bottom: 20px;
         }
 
         #container {
             background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            padding: 40px;
+            border-radius: 15px;
+            padding: 30px;
             width: 100%;
-            max-width: 600px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        #container:hover {
-            transform: scale(1.05);
+            max-width: 480px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
         button {
-            padding: 18px 35px;
+            padding: 12px 25px;
             margin: 15px;
             background-color: #FF6347;
             color: white;
-            font-size: 24px;
+            font-size: 16px;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease-in-out;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         button:hover {
             background-color: #FF4500;
-            transform: scale(1.1);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transform: scale(1.05);
         }
 
         .command {
-            font-size: 22px;
+            font-size: 18px;
+            padding: 10px 20px;
+            margin: 10px;
             background-color: #32CD32;
-            padding: 12px 25px;
-            border-radius: 10px;
-            margin: 5px;
+            border-radius: 8px;
             color: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             cursor: pointer;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .command:hover {
-            transform: scale(1.1);
             background-color: #228B22;
+            transform: scale(1.05);
         }
 
         #status {
-            margin-top: 25px;
+            margin-top: 20px;
             font-weight: bold;
-            font-size: 24px;
+            font-size: 18px;
             color: #333;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        #image-display {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
         }
 
         #image-display img, #image-display video {
-            width: 250px;
-            height: 250px;
-            border-radius: 12px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 300px;
+            border-radius: 10px;
         }
 
-        #image-display img:hover, #image-display video:hover {
-            transform: scale(1.1);
-            opacity: 0.8;
-        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
 
-        /* Animasyonlar */
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+            button, .command {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
 
-        #container {
-            animation: fadeIn 1.2s ease-out;
+            #status {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -131,7 +118,7 @@
             <button class="command" data-command="heyecanlı">😲 Heyecanlı</button>
         </div>
         <button id="send">Seçili Komutu Gönder</button>
-        <p id="status">Durum : Bağlanmadı</p>
+        <p id="status">Durum: Bağlanmadı</p>
         <div id="image-display"></div>
     </div>
 
@@ -143,20 +130,20 @@
         // Komutlar için resimler ve GIF'ler
         const images = {
             mutlu: {
-                img: '/mutlu.jpeg', // Mutlu resim URL'si
-                gif: '/mutlu2.mp4'  // Mutlu GIF URL'si
+                img: '/images/mutlu.jpeg', // Mutlu resim URL'si
+                gif: '/images/mutlu2.mp4'  // Mutlu GIF URL'si
             },
             üzgün: {
-                img: '/uzgun.jpeg', // Üzgün resim URL'si
-                gif: '/uzgun.mp4'  // Üzgün GIF URL'si
+                img: '/images/uzgun.jpeg', // Üzgün resim URL'si
+                gif: '/images/uzgun.mp4'  // Üzgün GIF URL'si
             },
             sinirli: {
-                img: '/ofke.jpeg', // Sinirli resim URL'si
-                gif: '/ofke.mp4'  // Sinirli GIF URL'si
+                img: '/images/ofke.jpeg', // Sinirli resim URL'si
+                gif: '/images/ofke.mp4'  // Sinirli GIF URL'si
             },
             heyecanlı: {
-                img: '/heyecanlı.jpeg', // Şaşkın resim URL'si
-                gif: '/mutlu.mp4'  // Şaşkın GIF URL'si
+                img: '/images/heyecanlı.jpeg', // Şaşkın resim URL'si
+                gif: '/images/mutlu.mp4'  // Şaşkın GIF URL'si
             }
         };
 
@@ -166,31 +153,11 @@
                 await port.open({ baudRate: 9600 });
                 writer = port.writable.getWriter();
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-
-                // Arduino'dan gelen verileri dinle
-                const reader = port.readable.getReader();
-                readFromSerial(reader);
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
-
-        // Arduino'dan gelen verileri dinleyen fonksiyon
-        async function readFromSerial(reader) {
-            const decoder = new TextDecoder();
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) {
-                    reader.releaseLock();
-                    break;
-                }
-                const command = decoder.decode(value).trim();
-                if (command) {
-                    showCommand(command);
-                }
-            }
-        }
 
         document.querySelectorAll('.command').forEach(button => {
             button.addEventListener('click', () => {
@@ -215,37 +182,13 @@
         // Komutla ilgili görselleri gösteren fonksiyon
         function showImage(command) {
             const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML = `
+            imageDisplay.innerHTML = ` 
                 <img src="${images[command].img}" alt="${command} image">
                 <video autoplay loop>
                     <source src="${images[command].gif}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             `;
-        }
-
-        // Komutla ilgili metin güncellenmesi
-        function showCommand(command) {
-            const statusElement = document.getElementById('status');
-            let displayText = '';
-
-            switch (command) {
-                case 'mutlu':
-                    displayText = 'Çocuk Mutlu!';
-                    break;
-                case 'üzgün':
-                    displayText = 'Çocuk Üzgün!';
-                    break;
-                case 'sinirli':
-                    displayText = 'Çocuk Sinirli!';
-                    break;
-                case 'heyecanlı':
-                    displayText = 'Çocuk Heyecanlı!';
-                    break;
-                default:
-                    displayText = 'Bilinmeyen komut.';
-            }
-            statusElement.textContent = `Durum: ${displayText}`;
         }
     </script>
 </body>
