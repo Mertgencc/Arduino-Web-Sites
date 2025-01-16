@@ -78,12 +78,6 @@
             border-radius: 10px;
         }
 
-        #score {
-            font-size: 18px;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-
         @media (max-width: 600px) {
             h1 {
                 font-size: 22px;
@@ -125,7 +119,6 @@
         <button id="connect">Bluetooth'a Bağlan</button>
         <button id="randomEmotion">Rastgele İfade Göster</button>
         <p id="status">Durum: Bağlanmadı</p>
-        <p id="score">Skor: 0</p>
         <div id="image-display"></div>
     </div>
 
@@ -136,7 +129,6 @@
         let port;
         let writer;
         let selectedEmotion = null;
-        let score = 0;
 
         const emotions = [
             { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
@@ -212,9 +204,7 @@
             const wrongSound = document.getElementById('wrongSound');
 
             if (value === selectedEmotion) {
-                score++;
                 correctSound.play();
-                document.getElementById('score').textContent = `Skor: ${score}`;
             } else {
                 wrongSound.play();
             }
