@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
-    <link
-        rel="icon"
-        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
-        type="image/x-icon"
-    />
     <style>
         * {
             margin: 0;
@@ -23,9 +18,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
             color: black;
-            overflow-x: hidden;
+            padding: 20px;
         }
 
         #container {
@@ -36,80 +30,39 @@
             max-width: 480px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            overflow: hidden;
         }
 
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
-            word-wrap: break-word;
         }
 
         button {
             padding: 12px 25px;
-            margin: 15px 0;
             background-color: #FF6347;
             color: white;
             font-size: 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%;
-            max-width: 350px;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
             background-color: green;
-            transform: scale(1.05);
         }
 
         #status {
             margin-top: 20px;
             font-weight: bold;
             font-size: 18px;
-            color: #333;
         }
 
-        #image-display img, #image-display video {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 22px;
-            }
-
-            button {
-                font-size: 14px;
-                padding: 10px;
-                max-width: 100%;
-            }
-
-            #status {
-                font-size: 16px;
-            }
-
-            #container {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 20px;
-            }
-
-            button {
-                font-size: 13px;
-            }
-
-            #status {
-                font-size: 14px;
-            }
+        #message {
+            margin-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #444;
         }
     </style>
 </head>
@@ -117,25 +70,17 @@
     <div id="container">
         <h1>Duygusal Yüz İfadeleri</h1>
         <button id="connect">Bluetooth'a Bağlan</button>
-        <button id="randomEmotion">Rastgele İfade Göster</button>
         <p id="status">Durum: Bağlanmadı</p>
-        <div id="image-display"></div>
+        <p id="message">Mesaj: Henüz bir etkileşim yok.</p>
     </div>
 
+    <!-- Ses Dosyaları -->
     <audio id="correctSound" src="dogruu.mp3"></audio>
     <audio id="wrongSound" src="yanlıscevap.mp3"></audio>
 
     <script>
         let port;
         let writer;
-        let selectedEmotion = null;
-
-        const emotions = [
-            { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
-            { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
-            { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
-            { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
-        ];
 
         document.getElementById('connect').addEventListener('click', async () => {
             try {
@@ -147,66 +92,40 @@
                 writer = textEncoder.writable.getWriter();
 
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                readArduinoData(); // Arduino'dan gelen veriyi okumaya başla
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
 
-        document.getElementById('randomEmotion').addEventListener('click', () => {
-            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-            selectedEmotion = randomEmotion.command;
+        async function readArduinoData() {
+            const reader = port.readable.getReader();
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+            const message = document.getElementById('message');
 
-            showImage(randomEmotion);
-            setTimeout(() => showGif(randomEmotion), 3000);
-
-            sendToBluetooth(randomEmotion.command);
-        });
-
-        function showImage(emotion) {
-            const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
-        }
-
-        function showGif(emotion) {
-            const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML += ` 
-                <video autoplay loop>
-                    <source src="${emotion.gif}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            `;
-        }
-
-        async function sendToBluetooth(command) {
-            if (writer) {
-                await writer.write(command + '\n');
-            }
-        }
-
-        const reader = port?.readable?.getReader();
-        if (reader) {
-            reader.read().then(function processText({ done, value }) {
+            while (true) {
+                const { value, done } = await reader.read();
                 if (done) {
+                    console.log('Bağlantı kapatıldı.');
                     reader.releaseLock();
-                    return;
+                    break;
                 }
 
                 const data = new TextDecoder().decode(value).trim();
-                handleButtonPress(data);
+                console.log('Arduino verisi:', data);
 
-                reader.read().then(processText);
-            });
-        }
-
-        function handleButtonPress(value) {
-            const correctSound = document.getElementById('correctSound');
-            const wrongSound = document.getElementById('wrongSound');
-
-            if (value === selectedEmotion) {
-                correctSound.play();
-            } else {
-                wrongSound.play();
+                // Gelen veriyi kontrol et ve mesajı güncelle
+                if (data === "DOGRU") {
+                    message.textContent = "Mesaj: Doğru cevap!";
+                    correctSound.play();
+                } else if (data === "YANLIS") {
+                    message.textContent = "Mesaj: Yanlış cevap.";
+                    wrongSound.play();
+                } else {
+                    message.textContent = "Mesaj: Geçersiz veri.";
+                }
             }
         }
     </script>
