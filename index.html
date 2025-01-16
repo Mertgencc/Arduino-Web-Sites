@@ -129,71 +129,49 @@
         let port;
         let writer;
         let selectedEmotion = null;
-
+    
         const emotions = [
             { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
             { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
             { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
             { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
         ];
-
+    
         document.getElementById('connect').addEventListener('click', async () => {
             try {
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 9600 });
-
+    
                 const textEncoder = new TextEncoderStream();
                 const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
                 writer = textEncoder.writable.getWriter();
-
+    
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-                readArduinoData(); // Arduino'dan gelen veriyi okumaya başla
+    
+                // Arduino'dan veri okuyucu
+                const reader = port.readable.getReader();
+                readFromArduino(reader);
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
-
-        async function readArduinoData() {
-            const reader = port.readable.getReader();
-            const correctSound = document.getElementById('correctSound');
-            const wrongSound = document.getElementById('wrongSound');
-
-            while (true) {
-                const { value, done } = await reader.read();
-                if (done) {
-                    console.log('Bağlantı kapatıldı.');
-                    reader.releaseLock();
-                    break;
-                }
-
-                const data = new TextDecoder().decode(value).trim();
-                console.log('Arduino verisi:', data);
-
-                // Gelen veriye göre ses çal
-                if (data === "DOGRU") {
-                    correctSound.play();
-                } else if (data === "YANLIS") {
-                    wrongSound.play();
-                }
-            }
-        }
-
+    
         document.getElementById('randomEmotion').addEventListener('click', () => {
             const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
             selectedEmotion = randomEmotion.command;
-
+    
             showImage(randomEmotion);
             setTimeout(() => showGif(randomEmotion), 3000);
-
+    
             sendToBluetooth(randomEmotion.command);
         });
-
+    
         function showImage(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
         }
-
+    
         function showGif(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML += ` 
@@ -203,12 +181,42 @@
                 </video>
             `;
         }
-
+    
         async function sendToBluetooth(command) {
             if (writer) {
                 await writer.write(command + '\n');
             }
         }
+    
+        // Arduino'dan gelen veriyi okuma ve işlem yapma
+        async function readFromArduino(reader) {
+            while (true) {
+                try {
+                    const { value, done } = await reader.read();
+                    if (done) break; // Okuma tamamlandığında döngüden çık
+    
+                    const data = new TextDecoder().decode(value).trim();
+                    handleButtonPress(data); // Gelen veri işleniyor
+                } catch (error) {
+                    console.error('Arduino ile veri okuma hatası:', error);
+                    break;
+                }
+            }
+        }
+    
+        function handleButtonPress(value) {
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+    
+            if (value === selectedEmotion) {
+                correctSound.play(); // Doğru sesi çal
+                document.getElementById('status').textContent = 'Durum: Doğru butona basıldı!';
+            } else {
+                wrongSound.play(); // Yanlış sesi çal
+                document.getElementById('status').textContent = 'Durum: Yanlış butona basıldı!';
+            }
+        }
     </script>
+    
 </body>
 </html>

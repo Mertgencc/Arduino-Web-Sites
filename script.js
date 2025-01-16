@@ -14,6 +14,8 @@ document.getElementById('connect').addEventListener('click', async () => {
 });
 
 document.getElementById('send').addEventListener('click', async () => {
+    const selectedCommand = document.getElementById('commandSelector')?.value; // Seçilen komut
+
     if (writer && selectedCommand) {
         const data = new TextEncoder().encode(selectedCommand + '\n'); // Komutu seri porta yaz
         await writer.write(data);
@@ -22,4 +24,3 @@ document.getElementById('send').addEventListener('click', async () => {
         alert('HC-05 bağlı değil veya içerik seçilmedi.');
     }
 });
- 
