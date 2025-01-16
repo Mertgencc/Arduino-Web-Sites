@@ -129,25 +129,25 @@
         let port;
         let writer;
         let selectedEmotion = null;
-    
+
         const emotions = [
             { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
             { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
             { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
             { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
         ];
-    
+
         document.getElementById('connect').addEventListener('click', async () => {
             try {
                 port = await navigator.serial.requestPort();
                 await port.open({ baudRate: 9600 });
-    
+
                 const textEncoder = new TextEncoderStream();
                 const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
                 writer = textEncoder.writable.getWriter();
-    
+
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
-    
+
                 // Arduino'dan veri okuyucu
                 const reader = port.readable.getReader();
                 readFromArduino(reader);
@@ -156,22 +156,30 @@
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
-    
+
         document.getElementById('randomEmotion').addEventListener('click', () => {
-            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            // Fisher-Yates algoritmasıyla duyguları karıştır
+            const shuffledEmotions = [...emotions];  // Duyguları kopyala
+            for (let i = shuffledEmotions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledEmotions[i], shuffledEmotions[j]] = [shuffledEmotions[j], shuffledEmotions[i]]; // Karıştır
+            }
+
+            // Karıştırılmış array'den rastgele bir duygu seç
+            const randomEmotion = shuffledEmotions[0];
             selectedEmotion = randomEmotion.command;
-    
+
             showImage(randomEmotion);
             setTimeout(() => showGif(randomEmotion), 3000);
-    
+
             sendToBluetooth(randomEmotion.command);
         });
-    
+
         function showImage(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
         }
-    
+
         function showGif(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML += ` 
@@ -181,20 +189,20 @@
                 </video>
             `;
         }
-    
+
         async function sendToBluetooth(command) {
             if (writer) {
                 await writer.write(command + '\n');
             }
         }
-    
+
         // Arduino'dan gelen veriyi okuma ve işlem yapma
         async function readFromArduino(reader) {
             while (true) {
                 try {
                     const { value, done } = await reader.read();
                     if (done) break; // Okuma tamamlandığında döngüden çık
-    
+
                     const data = new TextDecoder().decode(value).trim();
                     handleButtonPress(data); // Gelen veri işleniyor
                 } catch (error) {
@@ -203,11 +211,11 @@
                 }
             }
         }
-    
+
         function handleButtonPress(value) {
             const correctSound = document.getElementById('correctSound');
             const wrongSound = document.getElementById('wrongSound');
-    
+
             if (value === selectedEmotion) {
                 correctSound.play(); // Doğru sesi çal
                 document.getElementById('status').textContent = 'Durum: Doğru butona basıldı!';
@@ -217,6 +225,5 @@
             }
         }
     </script>
-    
 </body>
 </html>
