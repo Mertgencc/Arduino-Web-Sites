@@ -46,7 +46,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            margin: 10px 0;
+            margin: 10px 5px;
         }
 
         button:hover {
@@ -70,24 +70,88 @@
 <body>
     <div id="container">
         <h1>Duygusal Yüz İfadeleri</h1>
-        <button id="correctButton">Doğru Tıklama Yap</button>
+        <button id="connect">Bluetooth'a Bağlan</button>
+        <button onclick="dogruCal()">Doğru</button>
+        <button onclick="yanlisCal()">Yanlış</button>
         <p id="status">Durum: Bağlanmadı</p>
         <p id="message">Mesaj: Henüz bir etkileşim yok.</p>
     </div>
 
     <!-- Ses Dosyaları -->
     <audio id="correctSound" src="dogruu.mp3"></audio>
+    <audio id="wrongSound" src="yanlıscevap.mp3"></audio>
 
     <script>
-        const correctButton = document.getElementById('correctButton');
-        const correctSound = document.getElementById('correctSound');
-        const message = document.getElementById('message');
+        let port;
+        let writer;
 
-        // "Doğru Tıklama" butonuna basıldığında ses çal ve mesajı güncelle
-        correctButton.addEventListener('click', () => {
-            correctSound.play();
-            message.textContent = "Mesaj: Doğru cevap!";
+        document.getElementById('connect').addEventListener('click', async () => {
+            try {
+                port = await navigator.serial.requestPort();
+                await port.open({ baudRate: 9600 });
+
+                const textEncoder = new TextEncoderStream();
+                const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+                writer = textEncoder.writable.getWriter();
+
+                document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                readArduinoData(); // Arduino'dan gelen veriyi okumaya başla
+            } catch (error) {
+                console.error(error);
+                document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
+            }
         });
+
+        async function readArduinoData() {
+            const reader = port.readable.getReader();
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+            const message = document.getElementById('message');
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    console.log('Bağlantı kapatıldı.');
+                    reader.releaseLock();
+                    break;
+                }
+
+                const data = new TextDecoder().decode(value).trim();
+                console.log('Arduino verisi:', data);
+
+                // Gelen veriyi kontrol et ve mesajı güncelle
+                if (data === "DOGRU") {
+                    message.textContent = "Mesaj: Doğru cevap!";
+                    correctSound.play();
+                } else if (data === "YANLIS") {
+                    message.textContent = "Mesaj: Yanlış cevap.";
+                    wrongSound.play();
+                } else {
+                    message.textContent = "Mesaj: Geçersiz veri.";
+                }
+            }
+        }
+
+        // Doğru ve Yanlış butonlarına basıldığında ses oynatma
+        function dogruCal() {
+            const dogruSes = document.getElementById('correctSound');
+            dogruSes.play();
+        }
+
+        function yanlisCal() {
+            const yanlisSes = document.getElementById('wrongSound');
+            yanlisSes.play();
+        }
+
+        // Arduino'dan gelen veriyi dinle
+        const socket = new WebSocket('ws://arduino_ip_adresi');
+        socket.onmessage = (event) => {
+            if (event.data === 'dogru') {
+                dogruCal();
+            } else if (event.data === 'yanlis') {
+                yanlisCal();
+            }
+        };
     </script>
 </body>
 </html>
