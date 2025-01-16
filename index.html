@@ -99,25 +99,7 @@
             }
         });
 
-        // Arduino'dan gelen veriyi dinle
-const socket = new WebSocket('ws://arduino_ip_adresi');
-socket.onmessage = (event) => {
-  if (event.data === 'dogru') {
-    dogruCal();
-  } else if (event.data === 'yanlis') {
-    yanlisCal();
-  }
-};
-
-function dogruCal() {
-    const dogruSes = document.getElementById('dogruSes');
-    dogruSes.play();
-  }
-
-  function yanlisCal() {
-    const yanlisSes = document.getElementById('yanlisSes');
-    yanlisSes.play();
-  }
+        
 
         async function readArduinoData() {
             const reader = port.readable.getReader();
