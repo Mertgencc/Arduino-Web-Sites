@@ -147,11 +147,37 @@
                 writer = textEncoder.writable.getWriter();
 
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                readArduinoData(); // Arduino'dan gelen veriyi okumaya başla
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
+
+        async function readArduinoData() {
+            const reader = port.readable.getReader();
+            const correctSound = document.getElementById('correctSound');
+            const wrongSound = document.getElementById('wrongSound');
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    console.log('Bağlantı kapatıldı.');
+                    reader.releaseLock();
+                    break;
+                }
+
+                const data = new TextDecoder().decode(value).trim();
+                console.log('Arduino verisi:', data);
+
+                // Gelen veriye göre ses çal
+                if (data === "DOGRU") {
+                    correctSound.play();
+                } else if (data === "YANLIS") {
+                    wrongSound.play();
+                }
+            }
+        }
 
         document.getElementById('randomEmotion').addEventListener('click', () => {
             const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
@@ -181,32 +207,6 @@
         async function sendToBluetooth(command) {
             if (writer) {
                 await writer.write(command + '\n');
-            }
-        }
-
-        const reader = port?.readable?.getReader();
-        if (reader) {
-            reader.read().then(function processText({ done, value }) {
-                if (done) {
-                    reader.releaseLock();
-                    return;
-                }
-
-                const data = new TextDecoder().decode(value).trim();
-                handleButtonPress(data);
-
-                reader.read().then(processText);
-            });
-        }
-
-        function handleButtonPress(value) {
-            const correctSound = document.getElementById('correctSound');
-            const wrongSound = document.getElementById('wrongSound');
-
-            if (value === selectedEmotion) {
-                correctSound.play();
-            } else {
-                wrongSound.play();
             }
         }
     </script>
