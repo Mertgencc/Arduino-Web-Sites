@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duygusal Yüz İfadeleri</title>
-    <link
-        rel="icon"
-        href="/DALL·E 2025-01-15 19.50.49 - A colorful and expressive logo for a project named 'Duygusal Yüz İfadeleri' (Emotional Facial Expressions). The logo should feature a minimalist, yet .webp"
-        type="image/x-icon"
-    />
     <style>
         * {
             margin: 0;
@@ -23,15 +18,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
             color: black;
-            overflow-x: hidden;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            word-wrap: break-word;
+            padding: 20px;
         }
 
         #container {
@@ -42,80 +30,39 @@
             max-width: 480px;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
-            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
         button {
             padding: 12px 25px;
-            margin: 15px 0;
             background-color: #FF6347;
             color: white;
             font-size: 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-            width: 100%;
-            max-width: 350px;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
             background-color: green;
-            transform: scale(1.05);
         }
 
         #status {
             margin-top: 20px;
             font-weight: bold;
             font-size: 18px;
-            color: #333;
         }
 
-        #image-display img, #image-display video {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 300px;
-            border-radius: 10px;
-        }
-
-        #score {
-            font-size: 18px;
-            margin-top: 20px;
+        #message {
+            margin-top: 15px;
+            font-size: 20px;
             font-weight: bold;
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 22px;
-            }
-
-            button {
-                font-size: 14px;
-                padding: 10px;
-                max-width: 100%;
-            }
-
-            #status {
-                font-size: 16px;
-            }
-
-            #container {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 360px) {
-            h1 {
-                font-size: 20px;
-            }
-
-            button {
-                font-size: 13px;
-            }
-
-            #status {
-                font-size: 14px;
-            }
+            color: #444;
         }
     </style>
 </head>
@@ -123,30 +70,18 @@
     <div id="container">
         <h1>Duygusal Yüz İfadeleri</h1>
         <button id="connect">Bluetooth'a Bağlan</button>
-        <button id="randomEmotion">Rastgele İfade Göster</button>
         <p id="status">Durum: Bağlanmadı</p>
-        <p id="score">Skor: 0</p>
-        <div id="image-display"></div>
+        <p id="message">Mesaj: Henüz bir etkileşim yok.</p>
     </div>
 
-    <!-- Ses dosyaları -->
+    <!-- Ses Dosyaları -->
     <audio id="correctSound" src="dogruu.mp3"></audio>
     <audio id="wrongSound" src="yanlıscevap.mp3"></audio>
 
     <script>
         let port;
         let writer;
-        let selectedEmotion = null;
-        let score = 0;
 
-        const emotions = [
-            { command: 'mutlu', img: '/mutlu.jpeg', gif: '/mutlu2.mp4' },
-            { command: 'üzgün', img: '/uzgun.jpeg', gif: '/uzgun.mp4' },
-            { command: 'sinirli', img: '/ofke.jpeg', gif: '/ofke.mp4' },
-            { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
-        ];
-
-        // Bluetooth bağlantısı
         document.getElementById('connect').addEventListener('click', async () => {
             try {
                 port = await navigator.serial.requestPort();
@@ -157,76 +92,62 @@
                 writer = textEncoder.writable.getWriter();
 
                 document.getElementById('status').textContent = 'Durum: HC-05 Bağlandı!';
+                readArduinoData(); // Arduino'dan gelen veriyi okumaya başla
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').textContent = 'Durum: Bağlantı başarısız.';
             }
         });
 
-        // Rastgele ifade göster
-        document.getElementById('randomEmotion').addEventListener('click', () => {
-            const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
-            selectedEmotion = randomEmotion.command;
+        // Arduino'dan gelen veriyi dinle
+const socket = new WebSocket('ws://arduino_ip_adresi');
+socket.onmessage = (event) => {
+  if (event.data === 'dogru') {
+    dogruCal();
+  } else if (event.data === 'yanlis') {
+    yanlisCal();
+  }
+};
 
-            showImage(randomEmotion);
-            setTimeout(() => showGif(randomEmotion), 3000);
+function dogruCal() {
+    const dogruSes = document.getElementById('dogruSes');
+    dogruSes.play();
+  }
 
-            sendToBluetooth(randomEmotion.command);
-        });
+  function yanlisCal() {
+    const yanlisSes = document.getElementById('yanlisSes');
+    yanlisSes.play();
+  }
 
-        // Resim göster
-        function showImage(emotion) {
-            const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
-        }
-
-        // GIF göster
-        function showGif(emotion) {
-            const imageDisplay = document.getElementById('image-display');
-            imageDisplay.innerHTML += ` 
-                <video autoplay loop>
-                    <source src="${emotion.gif}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            `;
-        }
-
-        // Bluetooth üzerinden veri gönder
-        async function sendToBluetooth(command) {
-            if (writer) {
-                await writer.write(command + '\n');
-            }
-        }
-
-        // Geri dönüşleri işleme
-        function handleButtonPress(value) {
+        async function readArduinoData() {
+            const reader = port.readable.getReader();
             const correctSound = document.getElementById('correctSound');
             const wrongSound = document.getElementById('wrongSound');
+            const message = document.getElementById('message');
 
-            if (value === selectedEmotion) {
-                score++;
-                correctSound.play();
-                document.getElementById('score').textContent = `Skor: ${score}`;
-            } else {
-                wrongSound.play();
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    console.log('Bağlantı kapatıldı.');
+                    reader.releaseLock();
+                    break;
+                }
+
+                const data = new TextDecoder().decode(value).trim();
+                console.log('Arduino verisi:', data);
+
+                // Gelen veriyi kontrol et ve mesajı güncelle
+                if (data === "DOGRU") {
+                    message.textContent = "Mesaj: Doğru cevap!";
+                    correctSound.play();
+                } else if (data === "YANLIS") {
+                    message.textContent = "Mesaj: Yanlış cevap.";
+                    wrongSound.play();
+                } else {
+                    message.textContent = "Mesaj: Geçersiz veri.";
+                }
             }
         }
-
-        // Bluetooth üzerinden gelen veriyi işle
-        const reader = port.readable.getReader();
-        reader.read().then(function processText({ done, value }) {
-            if (done) {
-                console.log("Reading done");
-                reader.releaseLock();
-                return;
-            }
-
-            const data = new TextDecoder().decode(value);
-            console.log('Gelen veri:', data);
-            handleButtonPress(data.trim());
-
-            reader.read().then(processText);
-        });
     </script>
 </body>
 </html>
