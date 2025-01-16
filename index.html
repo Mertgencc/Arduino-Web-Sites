@@ -28,12 +28,6 @@
             overflow-x: hidden;
         }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            word-wrap: break-word;
-        }
-
         #container {
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
@@ -43,6 +37,12 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             text-align: center;
             overflow: hidden;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            word-wrap: break-word;
         }
 
         button {
@@ -129,7 +129,6 @@
         <div id="image-display"></div>
     </div>
 
-    <!-- Ses dosyaları -->
     <audio id="correctSound" src="dogruu.mp3"></audio>
     <audio id="wrongSound" src="yanlıscevap.mp3"></audio>
 
@@ -146,7 +145,6 @@
             { command: 'heyecanlı', img: '/heyecanlı.jpeg', gif: '/mutlu.mp4' }
         ];
 
-        // Bluetooth bağlantısı
         document.getElementById('connect').addEventListener('click', async () => {
             try {
                 port = await navigator.serial.requestPort();
@@ -163,7 +161,6 @@
             }
         });
 
-        // Rastgele ifade göster
         document.getElementById('randomEmotion').addEventListener('click', () => {
             const randomEmotion = emotions[Math.floor(Math.random() * emotions.length)];
             selectedEmotion = randomEmotion.command;
@@ -174,13 +171,11 @@
             sendToBluetooth(randomEmotion.command);
         });
 
-        // Resim göster
         function showImage(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML = `<img src="${emotion.img}" alt="${emotion.command} image">`;
         }
 
-        // GIF göster
         function showGif(emotion) {
             const imageDisplay = document.getElementById('image-display');
             imageDisplay.innerHTML += ` 
@@ -191,14 +186,27 @@
             `;
         }
 
-        // Bluetooth üzerinden veri gönder
         async function sendToBluetooth(command) {
             if (writer) {
                 await writer.write(command + '\n');
             }
         }
 
-        // Geri dönüşleri işleme
+        const reader = port?.readable?.getReader();
+        if (reader) {
+            reader.read().then(function processText({ done, value }) {
+                if (done) {
+                    reader.releaseLock();
+                    return;
+                }
+
+                const data = new TextDecoder().decode(value).trim();
+                handleButtonPress(data);
+
+                reader.read().then(processText);
+            });
+        }
+
         function handleButtonPress(value) {
             const correctSound = document.getElementById('correctSound');
             const wrongSound = document.getElementById('wrongSound');
@@ -211,22 +219,6 @@
                 wrongSound.play();
             }
         }
-
-        // Bluetooth üzerinden gelen veriyi işle
-        const reader = port.readable.getReader();
-        reader.read().then(function processText({ done, value }) {
-            if (done) {
-                console.log("Reading done");
-                reader.releaseLock();
-                return;
-            }
-
-            const data = new TextDecoder().decode(value);
-            console.log('Gelen veri:', data);
-            handleButtonPress(data.trim());
-
-            reader.read().then(processText);
-        });
     </script>
 </body>
 </html>
