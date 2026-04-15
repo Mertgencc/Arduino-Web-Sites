@@ -2,6 +2,8 @@
 
 - Emotional Face Expressions is an Arduino-based smart educational toy designed to help children recognize, understand, and express basic emotions in an interactive and fun way. Each emotion is assigned to a button, and the selected emotion is displayed on an LCD screen with visual and audio feedback.
 
+<img width="1312" height="623" alt="image" src="https://github.com/user-attachments/assets/37b3688b-e515-4b18-a0a4-68984af2b330" />
+
 ### 🚀 Features
 - 😊 Emotion selection via buttons (happy, sad, angry, etc.)
 - 🖥️ LCD display for showing emotions
