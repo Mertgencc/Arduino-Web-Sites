@@ -4,6 +4,8 @@
 
 <img width="1312" height="623" alt="image" src="https://github.com/user-attachments/assets/37b3688b-e515-4b18-a0a4-68984af2b330" />
 
+---
+
 ### 🚀 Features
 - 😊 Emotion selection via buttons (happy, sad, angry, etc.)
 - 🖥️ LCD display for showing emotions
@@ -11,6 +13,8 @@
 - 🔊 Buzzer for sound feedback
 - 📡 HC-05 Bluetooth module for wireless communication
 - 🎮 Interactive and educational learning experience for children
+
+---
 
 ### 🛠️ Tech Stack / Components
 - Arduino Uno
@@ -21,6 +25,8 @@
 - HC-05 Bluetooth Module
 - Tinkercad / Arduino IDE
 
+---
+
 ### 🧠 How It Works
 
 The system reads button inputs assigned to different emotions. When a button is pressed, the Arduino detects the selected emotion and:
@@ -28,6 +34,8 @@ The system reads button inputs assigned to different emotions. When a button is 
 - Displays the emotion on the LCD screen
 - Activates LED indicators for visual feedback
 - Triggers a buzzer for audio feedback
+
+---
 
 ### 📦 Project Structure
 ```
@@ -44,9 +52,13 @@ EmotionalFaceExpressions/
 │
 └── README.md
 ```
+---
+
 ### 🎯 Purpose
 
 - This project is designed to improve children’s emotional awareness by helping them recognize and understand basic human emotions through an interactive learning experience.
+
+---
 
 ### 👨‍💻 Author
 
@@ -54,6 +66,8 @@ EmotionalFaceExpressions/
 - 💼 Software Developer
 - 📍 Turkey
 - 🧠 Embedded Systems | Arduino | IoT Projects
+
+---
 
 ### 📄 License
 
